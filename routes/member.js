@@ -7,4 +7,6 @@ router.post('/register',
   memberModifyMethod.postRegister);
 router.post('/login', 
   memberModifyMethod.postLogin);
+router.put('/update', 
+  memberModifyMethod.postUpdate);
 module.exports = router;

@@ -1,10 +1,12 @@
 const toRegister = require('../models/register_model');
 const findMember=require('../models/login_model');
-const StringUtils=require('../utils/string_utils');
 const encryption=require('../services/encryption');
 const jwt = require('jsonwebtoken');
 const config=require('../configs/development_config');
+const verifyToken=require('../utils/verify_token_utils');
+const updateMember=require("../models/update_member_model")
 
+const StringUtils=require('../utils/string_utils');
 stringUtils=new StringUtils();
 
 module.exports = class Member {
@@ -83,6 +85,38 @@ module.exports = class Member {
                 result: err
             })
         })
+    }
+
+    postUpdate(req, res, next){
+        const token=req.headers['Authorization'];
+
+        if(checkNull(token)===true){
+            res.json({err:"please login"})
+            res.status(401).end();
+        }else if(checkNull(token)===false){
+            verifyToken(token).then(result => {
+                if (result === false) {
+                    res.json({err:"token invalid",msg:"token expired or invalid"});
+                    res.status(401).end();
+                } else {
+                    const userId=result;
+                    const memberData = {
+                        name: req.body.name,
+                        password: encryption(req.body.password)
+                    }
+
+                    updateMember(userId, memberData).then(result => {
+                        res.json({
+                            result: result
+                        })
+                    }, (err) => {
+                        res.json({
+                            result: err
+                        })
+                    })
+                }
+            })
+        }
     }
 }
 
