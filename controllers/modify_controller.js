@@ -1,6 +1,10 @@
 const toRegister = require('../models/register_model');
+const findMember=require('../models/login_model');
 const StringUtils=require('../utils/string_utils');
 const encryption=require('../services/encryption');
+const jwt = require('jsonwebtoken');
+const config=require('../configs/development_config');
+
 stringUtils=new StringUtils();
 
 module.exports = class Member {
@@ -41,7 +45,55 @@ module.exports = class Member {
         }
         
     }
+
+    postLogin(req, res, next){
+        const memberData = {
+            email: req.body.email,
+            password: encryption(req.body.password)
+        }
+
+        findMember(memberData).then(rows => {
+            if (checkNull(rows) === true) {
+        res.json({
+            result: {
+                status: "登入失敗。",
+                err: "請輸入正確的帳號或密碼。"
+            }
+        })
+    } else if (checkNull(rows) === false) {
+
+        // 產生token
+        const token = jwt.sign({
+            algorithm: 'HS256',
+            exp: Math.floor(Date.now() / 1000) + (60 * 60), // token一個小時後過期。
+            data: rows[0].id
+        }, config.secret);
+
+        res.json({
+            result: {
+                status: "登入成功。",
+                loginMember: "歡迎 " + rows[0].name + " 的登入！",
+                token: token
+            }
+        })
+    }
+        }, (err) => {
+            // 登入失敗
+            res.json({
+                result: err
+            })
+        })
+    }
 }
+
+function checkNull(data) {
+        for (var key in data) {
+            // 不為空
+            return false;
+        }
+        // 為空值
+        return true;
+    }
 
 function onTime(){
   const date = new Date();
