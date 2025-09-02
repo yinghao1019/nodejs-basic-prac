@@ -1,5 +1,6 @@
 const toRegister = require('../models/register_model');
 const StringUtils=require('../utils/string_utils');
+const encryption=require('../services/encryption');
 stringUtils=new StringUtils();
 
 module.exports = class Member {
@@ -15,7 +16,7 @@ module.exports = class Member {
         }
 
         // check email format
-        const isEmailValid=string_utils.checkEmail(memberData.email);
+        const isEmailValid=stringUtils.checkEmail(memberData.email);
         if(isEmailValid===false){
             res.json({
                 result: {

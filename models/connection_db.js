@@ -1,6 +1,6 @@
 // DataBase
-const config = require('../config/development_config');
-const mysqlt = require("mysql");
+const config = require('../configs/development_config');
+const mysqlt = require("mysql2");
 
 const connection = mysqlt.createConnection({
   host: config.mysql.host,
@@ -11,7 +11,7 @@ const connection = mysqlt.createConnection({
 
 connection.connect(err => {
   if (err) {
-    console.log('connecting error');
+    console.log('connecting error', err);
   } else {
     console.log('connecting success');
   }
